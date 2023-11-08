@@ -30,10 +30,12 @@ import com.example.ejerciciocard.ui.theme.EjercicioCardTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Email
@@ -77,99 +79,102 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyCard2()
+                    Column(
+                        Modifier.verticalScroll(
+                           rememberScrollState()
+                        )
+                    ) {
+                        MyCard("Tarea 1")
+                        Divider()
+                        MyCard("Tarea 2")
+                    }
                 }
             }
         }
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyDropDownMenu(list: List<String>) {
-    var selectedText by rememberSaveable {
-        mutableStateOf("")
-    }
-    var expanded by rememberSaveable {
-        mutableStateOf(false)
-    }
-    Column(
-        Modifier.padding(20.dp)
-    ) {
-        OutlinedTextField(
-            value = selectedText,
-            onValueChange = { selectedText = it },
-            enabled = false,
-            readOnly = true,
+fun BadgeContent(prioridad: String) {
+    if(prioridad.equals("Alta")){
+        Box(
             modifier = Modifier
-                .clickable { expanded = true }
-                .fillMaxWidth()
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+                .wrapContentSize()
+                .background(
+                    color = Color.Red,
+                    shape = CircleShape)
+                .padding(4.dp)
         ) {
-            list.forEach { lista ->
-                DropdownMenuItem(text = { Text(text = selectedText) },
-                    onClick = {
-                        expanded = false
-                        selectedText = lista
-                    })
-            }
+            Text(
+                text = prioridad,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier.padding(4.dp)
+            )
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyBadgeBox2() {
-    var prioridad by rememberSaveable {
-        mutableStateOf("Baja")
-    }
-    BadgedBox(badge = { BadgeContent(prioridad) }) {
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp)
+    }else if(prioridad.equals("Media")){
+        Box(
+            modifier = Modifier
+                .wrapContentSize()
+                .background(
+                    color = Color.Yellow,
+                    shape = CircleShape)
+                .padding(4.dp)
+        ) {
+            Text(
+                text = prioridad,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = Color.Black
+                ),
+                modifier = Modifier.padding(4.dp)
+            )
+        }
+    }else{
+        Box(
+            modifier = Modifier
+                .wrapContentSize()
+                .background(
+                    color = Color.Gray,
+                    shape = CircleShape)
+                .padding(4.dp)
+        ) {
+            Text(
+                text = prioridad,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = Color.Black
+                ),
+                modifier = Modifier.padding(4.dp)
             )
         }
     }
-    Spacer(modifier = Modifier.height(16.dp))
+
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BadgeContent(prioridad: String) {
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .background(color = Color.Red, shape = CircleShape)
-            .padding(4.dp)
-    ) {
-        Text(
-            text = prioridad,
-            style = MaterialTheme.typography.bodySmall.copy(
-                color = MaterialTheme.colorScheme.onPrimary
-            ),
-            modifier = Modifier.padding(4.dp)
-        )
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun MyCard2() {
+fun MyCard(titulo: String) {
     val listaPrioridad = listOf("Alta", "Media", "Baja")
     val completado = listOf("Completada", "No Completada")
+
+    var selectedText by rememberSaveable {
+        mutableStateOf(listaPrioridad.component3())
+    }
+
+    var selectedText2 by rememberSaveable {
+        mutableStateOf(completado.component2())
+    }
+
     Card(
         modifier = Modifier
             .padding(8.dp)
             .clickable { }
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Cyan,
+        )
     ) {
         Column(
         ) {
@@ -180,22 +185,113 @@ fun MyCard2() {
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Text(
-                    text = "Tarea 1",
+                    text = titulo,
                     fontSize = 30.sp
                 )
                 Box(
                     modifier = Modifier
                         .padding(0.dp, 0.dp, 60.dp, 0.dp)
                 ) {
+                    @Composable
+                    fun MyBadgeBox2() {
+                        BadgedBox(badge = { BadgeContent(selectedText) }) {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    imageVector = Icons.Default.Email,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     MyBadgeBox2()
                 }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+               Text(
+                   text = selectedText2.toString(),
+                   fontSize = 30.sp
+               )
             }
 
             Column(
                 Modifier.padding(66.dp)
             ) {
+                @Composable
+                fun MyDropDownMenu(list: List<String>) {
+
+                    var expanded by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    Column(
+                        Modifier.padding(20.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = selectedText,
+                            onValueChange = { selectedText = it },
+                            enabled = false,
+                            readOnly = true,
+                            modifier = Modifier
+                                .clickable { expanded = true }
+                                .fillMaxWidth()
+                        )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            list.forEach { lista ->
+                                DropdownMenuItem(text = { Text(text = lista) },
+                                    onClick = {
+                                        expanded = false
+                                        selectedText = lista
+                                    })
+                            }
+                        }
+                    }
+                }
+
+                @Composable
+                fun MyDropDownMenu2(list: List<String>) {
+
+                    var expanded by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    Column(
+                        Modifier.padding(20.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = selectedText2,
+                            onValueChange = { selectedText2 = it },
+                            enabled = false,
+                            readOnly = true,
+                            modifier = Modifier
+                                .clickable { expanded = true }
+                                .fillMaxWidth()
+                        )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            list.forEach { lista ->
+                                DropdownMenuItem(text = { Text(text = lista) },
+                                    onClick = {
+                                        expanded = false
+                                        selectedText2 = lista
+                                    })
+                            }
+                        }
+                    }
+                }
                 MyDropDownMenu(listaPrioridad)
-                MyDropDownMenu(completado)
+                MyDropDownMenu2(completado)
             }
         }
     }
